@@ -12,7 +12,7 @@ from retrying import retry
 # log config
 logging.basicConfig()
 logger = logging.getLogger('scihub')
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
 
 # constants
 RETRY_TIMES = 3
