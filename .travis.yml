@@ -10,13 +10,9 @@ python:
   - "3.6"
 
 script:
-  - python -m pytest scihub tests --cov=scihub
+  - python -m pytest scihub tests
 
 install:
   - pip install setuptools
-  - pip install python-coveralls
   - pip install pytest
   - pip install .
-
-#after_success:
-  #- coveralls
