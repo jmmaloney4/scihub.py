@@ -1,0 +1,22 @@
+language: python
+
+os:
+  - linux
+
+python:
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+script:
+  - python -m pytest scihub tests --cov=scihub
+
+install:
+  - pip install setuptools
+  - pip install python-coveralls
+  - pip install pytest
+  - pip install .
+
+#after_success:
+  #- coveralls

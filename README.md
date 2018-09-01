@@ -1,5 +1,6 @@
 scihub.py
 [![Python](https://img.shields.io/badge/Python-3%2B-blue.svg)](https://www.python.org)
+[![Build Status](https://travis-ci.org/alejandrogallo/python-scihub.svg?branch=master)](https://travis-ci.org/alejandrogallo/python-scihub)
 =========
 
 scihub.py is an unofficial API for sci-hub.cc. scihub.py can search for papers
