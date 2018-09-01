@@ -15,6 +15,7 @@ logger = logging.getLogger('scihub')
 logger.setLevel(logging.DEBUG)
 
 # constants
+RETRY_TIMES = 3
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)'
 }
@@ -53,6 +54,8 @@ class SciHub(object):
         self.session.headers = HEADERS
         self.available_base_url_list = AVAILABLE_SCIHUB_BASE_URL
         self.captcha_url = None
+        self.tries = 0
+        self.current_base_url_index = 0
 
     def set_proxy(self, proxy):
         '''
@@ -66,31 +69,46 @@ class SciHub(object):
 
     @property
     def base_url(self):
-        return 'https://' + self.available_base_url_list[0] + '/'
+        return 'https://{0}/'.format(
+            self.available_base_url_list[self.current_base_url_index]
+        )
 
     def _change_base_url(self):
-        del self.available_base_url_list[0]
+        self.current_base_url_index += 1
 
-        if len(self.available_base_url_list) == 0:
+        if self.current_base_url_index >= len(self.available_base_url_list):
             raise Exception("No more scihub urls available, none are working")
 
         logger.info(
-            "I'm changing to {0}".format(self.available_base_url_list[0])
+            "Changing to {0}".format(
+                self.available_base_url_list[self.current_base_url_index]
+            )
         )
 
-    @retry(wait_random_min=100, wait_random_max=1000, stop_max_attempt_number=3)
+    @retry(
+        wait_random_min=100,
+        wait_random_max=1000,
+        stop_max_attempt_number=RETRY_TIMES
+    )
     def fetch(self, identifier):
         """
         Fetches the paper by first retrieving the direct link to the pdf.
         If the indentifier is a DOI, PMID, or URL pay-wall, then use Sci-Hub
         to access and download paper. Otherwise, just download paper directly.
         """
-        logger.info('Downloading with {0}'.format(self.base_url))
-        url = self._get_direct_url(identifier)
-
-        if url is None:
+        self.tries += 1
+        logger.info(
+            '{0} Downloading with {1}'.format(self.tries, self.base_url)
+        )
+        try:
+            url = self._get_direct_url(identifier)
+        except Exception as e:
             self._change_base_url()
-            raise Exception('Direct url could not be retrieved')
+            raise e
+        else:
+            if url is None:
+                self._change_base_url()
+                raise DocumentUrlNotFound('Direct url could not be retrieved')
 
         logger.info('direct_url = {0}'.format(url))
 
@@ -167,16 +185,16 @@ class SciHub(object):
             logger.error('Server {0} is down '.format(self.base_url))
             return None
 
-        logger.error('Server {0} is up'.format(self.base_url))
+        logger.info('Server {0} is up'.format(self.base_url))
 
         url = self.base_url + identifier
         logger.info('scihub url {0}'.format(url))
         res = self.session.get(url, verify=False)
-        logger.info('Scraping scihub site')
+        logger.debug('Scraping scihub site')
         s = BeautifulSoup(res.content, 'html.parser')
         iframe = s.find('iframe')
         if iframe:
-            logger.info('iframe found in scihub')
+            logger.info('iframe found in scihub\'s html')
             return iframe.get('src') if not iframe.get('src').startswith('//') \
                 else 'https:' + iframe.get('src')
 
@@ -200,4 +218,8 @@ class SciHub(object):
 
 
 class CaptchaNeededException(Exception):
+    pass
+
+
+class DocumentUrlNotFound(Exception):
     pass
