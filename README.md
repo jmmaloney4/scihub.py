@@ -2,7 +2,9 @@ scihub.py
 [![Python](https://img.shields.io/badge/Python-3%2B-blue.svg)](https://www.python.org)
 =========
 
-scihub.py is an unofficial API for sci-hub.cc. scihub.py can search for papers on Google Scholars and download papers from sci-hub.cc. It can be imported independently or used from the command-line.
+scihub.py is an unofficial API for sci-hub.cc. scihub.py can search for papers
+on Google Scholars and download papers from sci-hub.cc. It can be imported
+independently or used from the command-line.
 
 If you believe in open access to scientific papers, please donate to Sci-Hub.
 
@@ -12,7 +14,8 @@ Features
 * Download a collection of articles by passing in file of article identifiers
 * Search for articles on Google Scholars and download them
 
-**Note**: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.
+**Note**: A known limitation of scihub.py is that captchas show up every now
+and then, blocking any searches or downloads.
 
 Setup
 -----
@@ -46,7 +49,8 @@ optional arguments:
   -p, --proxy           set proxy
 ```
 
-You can also import scihub. The following examples below demonstrate all the features.
+You can also import scihub. The following examples below demonstrate all the
+features.
 
 ### fetch
 
@@ -76,21 +80,6 @@ sh = SciHub()
 result = sh.download('http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=1648853', path='paper.pdf')
 ```
 
-### search
-
-```
-from scihub import SciHub
-
-sh = SciHub()
-
-# retrieve 5 articles on Google Scholars related to 'bittorrent'
-results = sh.search('bittorrent', 5)
-
-# download the papers; will use sci-hub.io if it must
-for paper in results['papers']:
-	sh.download(paper['url'])
-
-```
 License
 -------
 MIT
