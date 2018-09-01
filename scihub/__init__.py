@@ -11,21 +11,20 @@ from retrying import retry
 
 # log config
 logging.basicConfig()
-logger = logging.getLogger('scihub.py')
+logger = logging.getLogger('scihub')
 logger.setLevel(logging.DEBUG)
 
 # constants
 HEADERS = {
-    # 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:27.0)'
-                  # ' Gecko/20100101 Firefox/27.0'
+    'User-Agent': 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)'
 }
 AVAILABLE_SCIHUB_BASE_URL = [
     "sci-hub.tw",
     "sci-hub.is",
     "sci-hub.sci-hub.tw",
-    "sci-hub.mn",
     "80.82.77.84",
     "80.82.77.83",
+    "sci-hub.mn",
     "sci-hub.la",
     "sci-hub.io",
     "sci-hub.hk",
@@ -53,7 +52,6 @@ class SciHub(object):
         self.session = requests.Session()
         self.session.headers = HEADERS
         self.available_base_url_list = AVAILABLE_SCIHUB_BASE_URL
-        self.base_url = 'https://' + self.available_base_url_list[0] + '/'
         self.captcha_url = None
 
     def set_proxy(self, proxy):
@@ -66,13 +64,16 @@ class SciHub(object):
             "https": proxy,
         }
 
+    @property
+    def base_url(self):
+        return 'https://' + self.available_base_url_list[0] + '/'
+
     def _change_base_url(self):
         del self.available_base_url_list[0]
 
         if len(self.available_base_url_list) == 0:
             raise Exception("No more scihub urls available, none are working")
 
-        self.base_url = 'https://' + self.available_base_url_list[0] + '/'
         logger.info(
             "I'm changing to {0}".format(self.available_base_url_list[0])
         )
@@ -86,7 +87,12 @@ class SciHub(object):
         """
         logger.info('Downloading with {0}'.format(self.base_url))
         url = self._get_direct_url(identifier)
-        logger.info('\t  {0}'.format(url))
+
+        if url is None:
+            self._change_base_url()
+            raise Exception('Direct url could not be retrieved')
+
+        logger.info('direct_url = {0}'.format(url))
 
         try:
             # verify=False is dangerous but sci-hub.io
@@ -126,6 +132,10 @@ class SciHub(object):
                     )
             )
 
+        except:
+            self._change_base_url()
+            raise Exception("Something happened")
+
 
     def _set_captcha_url(self, url):
         self.captcha_url = url
@@ -150,6 +160,15 @@ class SciHub(object):
 
             https://moscow.sci-hub.io/.../....pdf.
         """
+
+        logger.debug('Pinging {0}'.format(self.base_url))
+        ping = self.session.get(self.base_url, timeout=1, verify=False)
+        if not ping.status_code == 200:
+            logger.error('Server {0} is down '.format(self.base_url))
+            return None
+
+        logger.error('Server {0} is up'.format(self.base_url))
+
         url = self.base_url + identifier
         logger.info('scihub url {0}'.format(url))
         res = self.session.get(url, verify=False)
@@ -157,6 +176,7 @@ class SciHub(object):
         s = BeautifulSoup(res.content, 'html.parser')
         iframe = s.find('iframe')
         if iframe:
+            logger.info('iframe found in scihub')
             return iframe.get('src') if not iframe.get('src').startswith('//') \
                 else 'https:' + iframe.get('src')
 
