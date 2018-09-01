@@ -20,7 +20,7 @@ Usage
 fetch
 ~~~~~
 
-::
+.. code:: python
 
     from scihub import SciHub
 
