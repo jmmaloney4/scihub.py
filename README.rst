@@ -1,5 +1,5 @@
-scihub.py |Python| |Build Status| |Pypi|
-=========
+SciHub |Python| |Build Status| |Pypi|
+======
 
 ``scihub`` is an unofficial API for sci-hub.cc. scihub.py can download
 papers from ``sci-hub``.
