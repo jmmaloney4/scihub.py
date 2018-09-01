@@ -37,11 +37,6 @@ setup(
         'bibtex', 'scihub', 'api', 'sci-hub',
         'management', 'cli', 'biliography'
     ],
-    entry_points=dict(
-        console_scripts=[
-            'scihub.py=scihub:main'
-        ]
-    ),
     packages=['scihub'],
     platforms=['linux', 'osx'],
 )
