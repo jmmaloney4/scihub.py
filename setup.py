@@ -14,8 +14,8 @@ setup(
     install_requires=[
         "beautifulsoup4>=4.4.1",
         "requests>=2.11.1",
-        "retrying",
-    ],
+        "python-doi>=0.1.0",
+    ]
     classifiers=[
         'Environment :: Console',
         'Environment :: Console :: Curses',
@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Utilities',
     ],
-    description='Unofficial scihub API',
+    description='Dead simple unofficial scihub API',
     long_description=long_description,
     keywords=[
         'bibtex', 'scihub', 'api', 'sci-hub',

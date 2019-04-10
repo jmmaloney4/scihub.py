@@ -1,8 +1,10 @@
-SciHub |Python| |Build Status| |Pypi|
+SciHub
 ======
 
-``scihub`` is an unofficial API for sci-hub.cc. scihub.py can download
-papers from ``sci-hub``.
+|Python| |Build Status| |Pypi|
+
+``scihub`` is an unofficial API for sci-hub.cc.
+``scihub`` can download papers from ``sci-hub``.
 
 If you believe in open access to scientific papers, please donate to
 Sci-Hub.
@@ -27,14 +29,15 @@ fetch
     sh = SciHub()
 
     # fetch specific article (don't download to disk)
-    # this will return a dictionary in the form 
-    # {'pdf': PDF_DATA,
-    #  'url': SOURCE_URL
-    # }
+    # this will return a namedtuple of the form
+    # result.pdf => PDF_DATA
+    # result.url => SOURCE_URL
+    # result.doi => PARSED_DOI
     result = sh.fetch('http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=1648853')
 
-    with open('output.pdf', 'wb+') as fd:
-        fd.write(result['pdf'])
+    if result:
+      with open('output.pdf', 'wb+') as fd:
+          fd.write(result.pdf)
 
 License
 -------

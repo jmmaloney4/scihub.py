@@ -4,6 +4,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 import collections
+import doi
 
 logger = logging.getLogger('scihub')
 
@@ -37,7 +38,7 @@ AVAILABLE_SCIHUB_BASE_URL = [
 ]
 
 
-Context = collections.namedtuple('Context', ['pdf', 'url'])
+Context = collections.namedtuple('Context', ['pdf', 'url', 'doi'])
 
 
 class SciHub(object):
@@ -53,6 +54,7 @@ class SciHub(object):
         self.available_base_url_list = base_urls
         self.tries = 0
         self.current_base_url_index = 0
+        self.doi = ''
 
     @property
     def base_url(self):
@@ -108,7 +110,7 @@ class SciHub(object):
                     .format(self.uri, url)
                 )
             else:
-                return Context(pdf=res.content, url=url)
+                return Context(pdf=res.content, url=url, doi=self.doi)
 
         except requests.exceptions.ConnectionError:
             logger.error(
@@ -149,6 +151,10 @@ class SciHub(object):
         logger.debug('scihub url {0}'.format(url))
         res = self.session.get(url, verify=False)
         logger.debug('Scraping scihub site')
+        logger.debug('trying to get doi')
+        self.doi = doi.find_doi_in_text(res.content.decode('utf8')) or ''
+        if self.doi:
+            logger.info('found a doi candidate {0}'.format(self.doi))
         s = BeautifulSoup(res.content, 'html.parser')
         iframe = s.find('iframe')
         if iframe:
