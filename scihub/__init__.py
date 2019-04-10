@@ -10,9 +10,7 @@ from bs4 import BeautifulSoup
 from retrying import retry
 
 # log config
-logging.basicConfig()
 logger = logging.getLogger('scihub')
-#logger.setLevel(logging.DEBUG)
 
 # constants
 RETRY_TIMES = 3
@@ -123,7 +121,7 @@ class SciHub(object):
             if res.headers['Content-Type'] != 'application/pdf':
                 self._set_captcha_url(url)
                 self._change_base_url()
-                logger.error('CAPTCHA needed')
+                logger.warning('CAPTCHA needed')
                 raise CaptchaNeededException(
                     'Failed to fetch pdf with identifier {0}'
                     '(resolved url {1}) due to captcha'.format(identifier, url)
@@ -150,9 +148,9 @@ class SciHub(object):
                     )
             )
 
-        except:
+        except Exception as e:
             self._change_base_url()
-            raise Exception("Something happened")
+            raise Exception(e)
 
 
     def _set_captcha_url(self, url):
@@ -185,16 +183,16 @@ class SciHub(object):
             logger.error('Server {0} is down '.format(self.base_url))
             return None
 
-        logger.info('Server {0} is up'.format(self.base_url))
+        logger.debug('Server {0} is up'.format(self.base_url))
 
         url = self.base_url + identifier
-        logger.info('scihub url {0}'.format(url))
+        logger.debug('scihub url {0}'.format(url))
         res = self.session.get(url, verify=False)
         logger.debug('Scraping scihub site')
         s = BeautifulSoup(res.content, 'html.parser')
         iframe = s.find('iframe')
         if iframe:
-            logger.info('iframe found in scihub\'s html')
+            logger.debug('iframe found in scihub\'s html')
             return iframe.get('src') if not iframe.get('src').startswith('//') \
                 else 'https:' + iframe.get('src')
 

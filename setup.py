@@ -6,7 +6,7 @@ with open('README.rst') as fd:
 
 setup(
     name='scihub',
-    version='0.0.1',
+    version='0.0.2',
     author='Alejandro Gallo',
     author_email='aamsgallo@gmail.com',
     license='GPLv3',
