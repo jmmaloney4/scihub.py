@@ -107,7 +107,8 @@ class SciHub(object):
                 raise CaptchaNeededException(
                     'Failed to fetch pdf with identifier {0}'
                     '(resolved url {1}) due to captcha'
-                    .format(self.uri, url)
+                    .format(self.uri, url),
+                    url
                 )
             else:
                 return Context(pdf=res.content, url=url, doi=self.doi)
@@ -127,10 +128,6 @@ class SciHub(object):
                         self.uri, url
                     )
             )
-
-        except Exception as e:
-            self._change_base_url()
-            raise Exception(e)
 
     def _search_direct_url(self):
         """
@@ -167,7 +164,10 @@ class SciHub(object):
 
 
 class CaptchaNeededException(Exception):
-    pass
+
+    def __init__(self, msg, url):
+        self.captcha_url = url
+        Exception.__init__(self, msg)
 
 
 class DocumentUrlNotFound(Exception):

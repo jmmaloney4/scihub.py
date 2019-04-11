@@ -15,7 +15,7 @@ setup(
         "beautifulsoup4>=4.4.1",
         "requests>=2.11.1",
         "python-doi>=0.1.0",
-    ]
+    ],
     classifiers=[
         'Environment :: Console',
         'Environment :: Console :: Curses',
